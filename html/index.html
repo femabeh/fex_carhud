@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEX_CARHUD</title>
+    <script src="https://kit.fontawesome.com/ddae274994.js" crossorigin="anonymous"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;500&display=swap" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <style>
+        body {
+            background-color: transparent;
+            margin: 0;
+            display: flex;
+            position: absolute;
+            height: 6px;
+            bottom: 120px;
+            left: 45.5%;
+            overflow: hidden;
+            font-family: inherit;
+        }
+
+        .progress-container {
+            width: 40%;
+            aspect-ratio: 1/1;
+            position: relative;
+            margin: 10px;
+            margin-left: 20px;
+            padding-left: 24px;
+            left: -6px;
+        }
+
+        .progress-container svg {
+            height: 160px;
+            left: -6px;
+            position: relative;
+            top: -30px;
+            margin-left: -24px;
+        }
+
+        .progress-container span {
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            position: absolute;
+            top: 30px;
+            left: 48px;
+            display: inline-block;
+       }
+
+        .progress-circle {
+            stroke: white;
+            stroke-width: 6%;
+            fill: none;
+            transition: stroke-dashoffset 0.3s ease;
+            transform: rotate(140deg);
+            transform-origin: 50% 50%;
+        }
+
+        .icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 200%;
+            margin-left: 12px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="progress-container" id="car">
+        <!-- <i class="icon fas fa-gas-pump" style="top: 86px; left: -20px; font-size: 140%;"></i> -->
+        <i class="icon fas fa-gas-pump" style="top: 86px; left: 260%; font-size: 140%;"></i>
+        <svg viewBox="0 0 100 100">
+            <circle class="progress-circle" cx="50" cy="50" r="40"></circle>
+        </svg>
+        <span>Lädt...</span>
+    </div>
+
+    <script>
+        $(function(){
+            window.addEventListener('message', function(event) {
+                if (event.data.action == "setValue")
+                {
+                    $('#'+event.data.key+' span').html(event.data.value)
+                }
+                else if (event.data.action == "setProgress") {
+                    //health, armor, stamina, hunger, thirst
+                    setProgress(event.data.key, event.data.value)
+                }
+                else if (event.data.action == "toggle")
+                {
+                    if (event.data.show){
+                        $('.progress-container').show();
+                    } else{
+                        $('.progress-container').hide();
+                    }
+                }
+            });
+
+        });
+
+        function setProgress(containerId, percent) {
+            const maxPercent = 72;
+            percent = Math.min(percent, maxPercent);
+
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const circle = container.querySelector('.progress-circle');
+            const radius = circle.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - percent / 100 * circumference;
+
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        setProgress("car", 100)
+    </script>
+</body>
+</html>
